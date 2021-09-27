@@ -1,4 +1,4 @@
-package com.tomgarber.s5recipeapp.domain;
+package com.tomgarber.domain;
 
 import javax.persistence.*;
 

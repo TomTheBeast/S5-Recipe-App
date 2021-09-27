@@ -1,4 +1,4 @@
-package com.tomgarber.s5recipeapp;
+package com.tomgarber;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
