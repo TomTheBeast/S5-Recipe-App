@@ -4,16 +4,19 @@ import com.tomgarber.domain.*;
 import com.tomgarber.repositories.CategoryRepository;
 import com.tomgarber.repositories.RecipeRepository;
 import com.tomgarber.repositories.UnitOfMeasureRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
     private final CategoryRepository categoryRepository;
@@ -27,11 +30,14 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
     }
 
     @Override
+    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         recipeRepository.saveAll(getRecipes());
     }
 
     private List<Recipe> getRecipes() {
+
+        log.debug("Loading and Verifying Units of Measure...");
 
         List<Recipe> recipes = new ArrayList<>(2);
 
@@ -80,6 +86,10 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         UnitOfMeasure pintUom = pintUomOptional.get();
         UnitOfMeasure cupsUom = cupsUomOptional.get();
 
+        log.debug("Finished Loading and Verifying Units of Measure");
+
+        log.debug("Loading and Verifying Categories...");
+
         //get Categories
         Optional<Category> americanCategoryOptional = categoryRepository.findByDescription("American");
 
@@ -96,6 +106,10 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         Category americanCategory = americanCategoryOptional.get();
         Category mexicanCategory = mexicanCategoryOptional.get();
 
+        log.debug("Finished Loading and Verifying Categories");
+
+
+        log.debug("Loading Recipes...");
         //Yummy Guac
         Recipe guacRecipe = new Recipe();
         guacRecipe.setDescription("Perfect Guacamole");
@@ -198,6 +212,8 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         tacosRecipe.getCategories().add(mexicanCategory);
 
         recipes.add(tacosRecipe);
+
+        log.debug("Finished Loading " + recipes.size() + " Recipes.");
         return recipes;
     }
 }
