@@ -9,7 +9,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +29,11 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
     }
 
     @Override
-    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         recipeRepository.saveAll(getRecipes());
     }
 
     private List<Recipe> getRecipes() {
-
-        log.debug("Loading and Verifying Units of Measure...");
 
         List<Recipe> recipes = new ArrayList<>(2);
 
@@ -86,10 +82,6 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         UnitOfMeasure pintUom = pintUomOptional.get();
         UnitOfMeasure cupsUom = cupsUomOptional.get();
 
-        log.debug("Finished Loading and Verifying Units of Measure");
-
-        log.debug("Loading and Verifying Categories...");
-
         //get Categories
         Optional<Category> americanCategoryOptional = categoryRepository.findByDescription("American");
 
@@ -106,10 +98,6 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         Category americanCategory = americanCategoryOptional.get();
         Category mexicanCategory = mexicanCategoryOptional.get();
 
-        log.debug("Finished Loading and Verifying Categories");
-
-
-        log.debug("Loading Recipes...");
         //Yummy Guac
         Recipe guacRecipe = new Recipe();
         guacRecipe.setDescription("Perfect Guacamole");
@@ -137,20 +125,24 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
                 "\n" +
                 "\n" +
                 "Read more: http://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvoun5ws");
-
+        guacNotes.setRecipe(guacRecipe);
         guacRecipe.setNotes(guacNotes);
 
-        guacRecipe.getIngredients().add(new Ingredient("ripe avocados", new BigDecimal(2), eachUom));
-        guacRecipe.getIngredients().add(new Ingredient("Kosher salt", new BigDecimal(".5"), teapoonUom));
-        guacRecipe.getIngredients().add(new Ingredient("fresh lime juice or lemon juice", new BigDecimal(2), tableSpoonUom));
-        guacRecipe.getIngredients().add(new Ingredient("minced red onion or thinly sliced green onion", new BigDecimal(2), tableSpoonUom));
-        guacRecipe.getIngredients().add(new Ingredient("serrano chiles, stems and seeds removed, minced", new BigDecimal(2), eachUom));
+        guacRecipe.getIngredients().add(new Ingredient("ripe avocados", new BigDecimal(2), eachUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("Kosher salt", new BigDecimal(".5"), teapoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("fresh lime juice or lemon juice", new BigDecimal(2), tableSpoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("minced red onion or thinly sliced green onion", new BigDecimal(2), tableSpoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("serrano chiles, stems and seeds removed, minced", new BigDecimal(2), eachUom, guacRecipe));
         guacRecipe.getIngredients().add(new Ingredient("Cilantro", new BigDecimal(2), tableSpoonUom, guacRecipe));
         guacRecipe.getIngredients().add(new Ingredient("freshly grated black pepper", new BigDecimal(2), dashUom, guacRecipe));
-        guacRecipe.getIngredients().add(new Ingredient("ripe tomato, seeds and pulp removed, chopped", new BigDecimal(".5"), eachUom));
+        guacRecipe.getIngredients().add(new Ingredient("ripe tomato, seeds and pulp removed, chopped", new BigDecimal(".5"), eachUom, guacRecipe));
 
         guacRecipe.getCategories().add(americanCategory);
         guacRecipe.getCategories().add(mexicanCategory);
+
+        guacRecipe.setUrl("http://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvoun5ws");
+        guacRecipe.setServings(4);
+        guacRecipe.setSource("Simply Recipes");
 
         //add to return list
         recipes.add(guacRecipe);
@@ -208,12 +200,11 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         tacosRecipe.getIngredients().add(new Ingredient("cup sour cream thinned with 1/4 cup milk", new BigDecimal(4), cupsUom, tacosRecipe));
         tacosRecipe.getIngredients().add(new Ingredient("lime, cut into wedges", new BigDecimal(4), eachUom, tacosRecipe));
 
+
         tacosRecipe.getCategories().add(americanCategory);
         tacosRecipe.getCategories().add(mexicanCategory);
 
         recipes.add(tacosRecipe);
-
-        log.debug("Finished Loading " + recipes.size() + " Recipes.");
         return recipes;
     }
 }
